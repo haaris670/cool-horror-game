@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ROBLOX Escape the Noob Monster! — Part 2 + Act 3</title>
+    <style>
+        * { box-sizing: border-box; user-select: none; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body, html {
+            width: 100%; height: 100%;
+            background: #050505;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden; color: #fff;
+            touch-action: none;
+        }
+        #roblox-topbar {
+            position: absolute; top: 0; left: 0; width: 100%; height: 42px;
+            background: rgba(20,20,20,0.9);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 15px; z-index: 20; border-bottom: 2px solid #333;
+        }
+        .roblox-logo { font-weight: 900; letter-spacing: 1px; font-size: 16px; }
+        .player-list {
+            font-size: 13px; background: rgba(0,0,0,0.5);
+            padding: 3px 10px; border-radius: 4px; border: 1px solid #444;
+        }
+        #game-container {
+            position: relative; width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+        }
+        canvas {
+            background: #000;
+            box-shadow: 0 0 40px rgba(0,0,0,0.9);
+            display: block; cursor: crosshair;
+            max-width: 100%; max-height: 100%;
+        }
+        .hud-element {
+            position: absolute; font-weight: bold;
+            text-shadow: 2px 2px 4px #000; pointer-events: none; z-index: 15;
+        }
+        #objective {
+            top: 55px; left: 50%; transform: translateX(-50%);
+            font-size: 16px; color: #ffff4d; text-align: center;
+            text-transform: uppercase; letter-spacing: 1px;
+            max-width: 90%;
+        }
+        /* Inventory - LEFT SIDE */
+        #inventory {
+            bottom: 110px;
+            left: 18px;
+            background: rgba(0,0,0,0.75);
+            padding: 8px 18px;
+            border-radius: 8px;
+            border: 2px solid #555;
+            font-size: 14px;
+            display: none;
+            gap: 12px;
+            pointer-events: auto;
+            z-index: 15;
+        }
+        .hotbar-slot {
+            width: 46px; height: 46px; border: 2px dashed #aaa;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; background: rgba(255,255,255,0.08);
+        }
+        .hotbar-slot.has-item {
+            border-style: solid; border-color: #00ff00;
+            background: rgba(0,255,0,0.12);
+        }
+        /* Sprint Bar */
+        #sprint-container {
+            position: absolute;
+            bottom: 75px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 16px;
+            background: rgba(0,0,0,0.7);
+            border: 2px solid #555;
+            border-radius: 6px;
+            overflow: hidden;
+            z-index: 15;
+            display: none;
+        }
+        #sprint-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #00b060, #00ff88);
+            transition: width 0.1s linear;
+        }
+        #sprint-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 10px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
+            pointer-events: none;
+        }
+        /* Pause Button */
+        #pause-btn {
+            position: absolute;
+            top: 55px;
+            right: 18px;
+            width: 52px;
+            height: 52px;
+            background: rgba(0,0,0,0.7);
+            border: 2px solid #aaa;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 40;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        #pause-btn:hover { background: rgba(40,40,40,0.9); border-color: #fff; }
+
+        /* Pause Overlay */
+        #pause-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.78);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            text-align: center;
+        }
+        #pause-overlay h1 { font-size: 52px; margin-bottom: 12px; letter-spacing: 4px; }
+        #pause-overlay p { color: #bbb; margin-bottom: 25px; font-size: 16px; }
+
+        /* Mobile Controls */
+        #joystick-zone {
+            position: absolute;
+            bottom: 30px; left: 30px;
+            width: 130px; height: 130px;
+            z-index: 30; display: none; touch-action: none;
+        }
+        #joystick-base {
+            width: 130px; height: 130px;
+            background: rgba(255,255,255,0.12);
+            border: 3px solid rgba(255,255,255,0.35);
+            border-radius: 50%; position: relative;
+        }
+        #joystick-knob {
+            width: 55px; height: 55px;
+            background: rgba(0, 180, 100, 0.85);
+            border: 3px solid #fff; border-radius: 50%;
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); pointer-events: none;
+        }
+        #sprint-btn {
+            position: absolute;
+            bottom: 40px; right: 30px;
+            width: 90px; height: 90px;
+            background: rgba(0, 176, 96, 0.75);
+            border: 3px solid #fff; border-radius: 50%;
+            z-index: 30; display: none;
+            align-items: center; justify-content: center;
+            font-weight: 900; font-size: 14px; color: #fff;
+            text-shadow: 1px 1px 3px #000; touch-action: none;
+        }
+        #sprint-btn.active {
+            background: rgba(0, 255, 130, 0.95);
+            transform: scale(0.92);
+        }
+
+        .screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; z-index: 100; background: rgba(0,0,0,0.92);
+            text-align: center; padding: 20px;
+        }
+        .screen h1 { font-size: 42px; margin-bottom: 8px; }
+        .screen .subtitle { font-size: 17px; color: #aaa; margin-bottom: 28px; }
+        .screen p { font-size: 15px; margin-bottom: 25px; color: #bbb; max-width: 520px; }
+
+        .act-buttons {
+            display: flex; gap: 16px; margin-top: 10px;
+            flex-wrap: wrap; justify-content: center;
+        }
+        .roblox-btn {
+            background: #00b060; color: white; border: none;
+            padding: 14px 28px; font-size: 18px; font-weight: bold;
+            border-bottom: 5px solid #006e3c; border-radius: 6px;
+            cursor: pointer; transition: 0.1s; min-width: 140px;
+        }
+        .roblox-btn:hover { filter: brightness(1.1); }
+        .roblox-btn:active { transform: translateY(4px); border-bottom-width: 1px; }
+        .roblox-btn.act2 { background: #c0392b; border-bottom-color: #7b241c; }
+        .roblox-btn.act3 { background: #8e44ad; border-bottom-color: #5b2c6f; }
+        .roblox-btn.back { background: #555; border-bottom-color: #333; margin-top: 15px; }
+
+        #gameover-screen { background: #000; display: none; }
+        #gameover-screen h1 { color: #ff3333; font-family: 'Courier New', monospace; letter-spacing: 3px; }
+        #victory-screen {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            display: none;
+        }
+        #controls-hint {
+            position: absolute; bottom: 25px; left: 18px;
+            background: rgba(0,0,0,0.8); padding: 10px 14px;
+            border-radius: 5px; font-size: 12px; line-height: 1.55;
+            border-left: 3px solid #00a2ff; z-index: 15;
+            max-width: 210px; display: none;
+        }
+        #crosshair {
+            position: absolute; top: 50%; left: 50%;
+            width: 18px; height: 18px; margin: -9px 0 0 -9px;
+            pointer-events: none; z-index: 12; display: none;
+        }
+        #crosshair::before, #crosshair::after {
+            content: ''; position: absolute; background: rgba(255,255,255,0.7);
+        }
+        #crosshair::before { width: 2px; height: 18px; left: 8px; }
+        #crosshair::after { width: 18px; height: 2px; top: 8px; }
+    </style>
+</head>
+<body>
+    <div id="roblox-topbar">
+        <div class="roblox-logo">🔲 ROBLOX Studio Sandbox — Part 2 + Act 3</div>
+        <div class="player-list">👤 Player1 (Online)</div>
+    </div>
+
+    <div id="game-container">
+        <div id="objective" class="hud-element">Find the Yellow Key!</div>
+
+        <div id="controls-hint" class="hud-element">
+            <strong>CONTROLS</strong><br>
+            • Move: Joystick / WASD<br>
+            • Look: Swipe / Mouse<br>
+            • Sprint: Hold Sprint / Shift<br>
+            • Pause: Space or ⏸ button
+        </div>
+
+        <div id="inventory">
+            <div id="slot-key" class="hotbar-slot">❓</div>
+            <div style="line-height:46px;font-size:13px;">Inventory</div>
+        </div>
+
+        <div id="sprint-container">
+            <div id="sprint-bar"></div>
+            <div id="sprint-label">SPRINT</div>
+        </div>
+
+        <button id="pause-btn" title="Pause (Space)">⏸</button>
+
+        <div id="pause-overlay">
+            <h1>PAUSED</h1>
+            <p>Press <b>Space</b> or the button to resume</p>
+            <button class="roblox-btn" onclick="togglePause()">RESUME</button>
+            <button class="roblox-btn back" onclick="backToMenu()">← MAIN MENU</button>
+        </div>
+
+        <div id="crosshair"></div>
+
+        <!-- Mobile -->
+        <div id="joystick-zone">
+            <div id="joystick-base">
+                <div id="joystick-knob"></div>
+            </div>
+        </div>
+        <div id="sprint-btn">SPRINT</div>
+
+        <!-- MAIN MENU -->
+        <div id="start-screen" class="screen">
+            <h1>THE NOOB'S ASYLUM</h1>
+            <div class="subtitle">SELECT YOUR ACT</div>
+            <p>Three chapters of increasing horror. Can you survive the Final Corruption?</p>
+
+            <div class="act-buttons">
+                <button class="roblox-btn" onclick="startAct(1)">ACT 1</button>
+                <button class="roblox-btn act2" onclick="startAct(2)">ACT 2</button>
+                <button class="roblox-btn act3" onclick="startAct(3)">ACT 3</button>
+            </div>
+
+            <!-- Update Log Button -->
+            <a href="update-log\update-log.html" class="roblox-btn"
+               style="background: #555; border-bottom-color: #333; margin-top: 28px; text-decoration: none; display: inline-block;">
+                📜 UPDATE LOG
+            </a>
+        </div>
+
+        <div id="gameover-screen" class="screen">
+            <h1>OOF! YOU DIED.</h1>
+            <p id="death-cause">The Corrupted Noob caught you...</p>
+            <button class="roblox-btn" style="background:#cc3333;border-color:#881111;" onclick="restartGame()">RESPAWN</button>
+            <button class="roblox-btn back" onclick="backToMenu()">← MAIN MENU</button>
+        </div>
+        <div id="victory-screen" class="screen">
+            <h1>🏆 BADGE UNLOCKED!</h1>
+            <p id="victory-text">You escaped!</p>
+            <button class="roblox-btn" onclick="restartGame()">PLAY AGAIN</button>
+            <button class="roblox-btn back" onclick="backToMenu()">← MAIN MENU</button>
+        </div>
+
+        <canvas id="horrorCanvas" width="900" height="600" style="display:none;"></canvas>
+    </div>
+
+<script>
+const canvas = document.getElementById("horrorCanvas");
+const ctx = canvas.getContext("2d");
+const W = canvas.width;
+const H = canvas.height;
+
+let gameActive = false;
+let isPaused = false;
+let jumpscareTimer = 0;
+let keys = {};
+let pointerLocked = false;
+let currentAct = 1;
+
+// Sprint
+let stamina = 100;
+const maxStamina = 100;
+let isSprinting = false;
+const sprintMultiplier = 1.65;
+const staminaDrain = 0.55;
+const staminaRegen = 0.28;
+
+// Mobile
+let joyActive = false, joyDX = 0, joyDY = 0, joyTouchId = null;
+const joyMaxDist = 45;
+let lookTouchId = null, lastLookX = 0;
+let mobileSprint = false;
+
+const playerRadius = 0.22;
+
+const player = {
+    x: 1.5, y: 1.5, angle: 0,
+    fov: Math.PI / 3,
+    speed: 0.045,
+    rotSpeed: 0.0035,
+    hasKey: false
+};
+
+const monster = { x: 14.2, y: 12.5, speed: 0.020 };
+const keyItem = { x: 14.5, y: 1.5, pickedUp: false };
+const exitDoor = { x: 1.5, y: 12.5 };
+
+// ========== MAPS ==========
+const maps = {
+    1: [ // Act 1
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
+        [1,0,1,1,1,0,1,0,1,1,1,1,1,1,0,1],
+        [1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],
+        [1,0,1,0,1,1,1,1,1,0,1,1,0,1,0,1],
+        [1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,1],
+        [1,1,1,0,1,0,1,1,1,1,0,1,1,1,0,1],
+        [1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
+        [1,0,1,1,1,0,1,0,1,1,1,1,1,1,1,1],
+        [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
+        [1,0,1,1,1,1,1,0,1,1,1,1,0,1,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    ],
+    2: [ // Act 2
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1],
+        [1,0,1,0,1,0,1,1,1,0,1,0,1,1,1,1,0,1],
+        [1,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,1],
+        [1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1],
+        [1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,0,1,0,1,1,1,0,1,1,1,1,1,1,1,1],
+        [1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1],
+        [1,0,1,1,1,1,1,1,1,0,1,0,1,1,1,1,0,1],
+        [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,1],
+        [1,1,1,1,1,0,1,0,1,1,1,1,1,1,0,1,0,1],
+        [1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    ],
+    3: [ // Act 3 - Final Corruption (bigger + harder)
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+        [1,0,1,1,0,1,0,1,1,1,0,1,0,1,1,1,1,1,0,1],
+        [1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1],
+        [1,0,1,0,1,1,1,1,0,1,1,1,1,1,0,1,0,1,0,1],
+        [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1],
+        [1,1,1,0,1,0,1,1,1,1,0,1,1,1,0,1,1,1,0,1],
+        [1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1],
+        [1,0,1,1,1,0,1,0,1,1,1,1,0,1,1,1,1,1,0,1],
+        [1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+        [1,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1],
+        [1,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
+        [1,1,1,1,0,1,1,1,0,1,1,1,0,1,0,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    ]
+};
+
+let map = maps[1];
+let MAP_W = map[0].length;
+let MAP_H = map.length;
+
+// ========== INPUT ==========
+window.addEventListener("keydown", e => {
+    keys[e.key.toLowerCase()] = true;
+    if (e.key === "Shift") keys["shift"] = true;
+    if (e.code === "Space" && gameActive && jumpscareTimer === 0) {
+        e.preventDefault();
+        togglePause();
+    }
+    if (["arrowup","arrowdown","arrowleft","arrowright"," "].includes(e.key.toLowerCase())) e.preventDefault();
+});
+window.addEventListener("keyup", e => {
+    keys[e.key.toLowerCase()] = false;
+    if (e.key === "Shift") keys["shift"] = false;
+});
+
+canvas.addEventListener("click", () => {
+    if (!gameActive || isPaused) return;
+    canvas.requestPointerLock();
+});
+document.addEventListener("pointerlockchange", () => {
+    pointerLocked = document.pointerLockElement === canvas;
+});
+document.addEventListener("mousemove", e => {
+    if (!pointerLocked || !gameActive || isPaused) return;
+    player.angle += e.movementX * player.rotSpeed;
+});
+
+document.getElementById("pause-btn").addEventListener("click", () => {
+    if (gameActive && jumpscareTimer === 0) togglePause();
+});
+
+// Mobile
+const joyZone = document.getElementById("joystick-zone");
+const joyKnob = document.getElementById("joystick-knob");
+const sprintBtn = document.getElementById("sprint-btn");
+
+function showMobileControls(show) {
+    joyZone.style.display = show ? "block" : "none";
+    sprintBtn.style.display = show ? "flex" : "none";
+}
+
+joyZone.addEventListener("touchstart", e => {
+    e.preventDefault();
+    if (isPaused) return;
+    const t = e.changedTouches[0];
+    joyTouchId = t.identifier;
+    joyActive = true;
+    updateJoystick(t);
+}, {passive: false});
+joyZone.addEventListener("touchmove", e => {
+    e.preventDefault();
+    if (isPaused) return;
+    for (const t of e.changedTouches) if (t.identifier === joyTouchId) updateJoystick(t);
+}, {passive: false});
+joyZone.addEventListener("touchend", e => {
+    for (const t of e.changedTouches) {
+        if (t.identifier === joyTouchId) {
+            joyActive = false; joyTouchId = null;
+            joyDX = 0; joyDY = 0;
+            joyKnob.style.transform = "translate(-50%, -50%)";
+        }
+    }
+});
+function updateJoystick(touch) {
+    const rect = joyZone.getBoundingClientRect();
+    const cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
+    let dx = touch.clientX - cx, dy = touch.clientY - cy;
+    const d = Math.hypot(dx, dy);
+    if (d > joyMaxDist) { dx = dx/d*joyMaxDist; dy = dy/d*joyMaxDist; }
+    joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    joyDX = dx / joyMaxDist;
+    joyDY = dy / joyMaxDist;
+}
+
+sprintBtn.addEventListener("touchstart", e => { e.preventDefault(); if (!isPaused) { mobileSprint = true; sprintBtn.classList.add("active"); } }, {passive:false});
+sprintBtn.addEventListener("touchend", () => { mobileSprint = false; sprintBtn.classList.remove("active"); });
+sprintBtn.addEventListener("touchcancel", () => { mobileSprint = false; sprintBtn.classList.remove("active"); });
+
+canvas.addEventListener("touchstart", e => {
+    if (!gameActive || isPaused) return;
+    for (const t of e.changedTouches) {
+        const el = document.elementFromPoint(t.clientX, t.clientY);
+        if (el === joyZone || joyZone.contains(el) || el === sprintBtn || el.id === "pause-btn") continue;
+        lookTouchId = t.identifier; lastLookX = t.clientX; break;
+    }
+}, {passive:false});
+canvas.addEventListener("touchmove", e => {
+    if (!gameActive || isPaused || lookTouchId === null) return;
+    e.preventDefault();
+    for (const t of e.changedTouches) {
+        if (t.identifier === lookTouchId) {
+            player.angle += (t.clientX - lastLookX) * 0.0055;
+            lastLookX = t.clientX;
+        }
+    }
+}, {passive:false});
+canvas.addEventListener("touchend", e => {
+    for (const t of e.changedTouches) if (t.identifier === lookTouchId) lookTouchId = null;
+});
+
+// ========== HELPERS ==========
+function isWall(x, y) {
+    const mx = Math.floor(x), my = Math.floor(y);
+    if (mx < 0 || my < 0 || mx >= MAP_W || my >= MAP_H) return true;
+    return map[my][mx] === 1;
+}
+function canMoveTo(x, y) {
+    const r = playerRadius;
+    const pts = [[x,y],[x-r,y],[x+r,y],[x,y-r],[x,y+r],
+                 [x-r*0.7,y-r*0.7],[x+r*0.7,y-r*0.7],[x-r*0.7,y+r*0.7],[x+r*0.7,y+r*0.7]];
+    for (const [px,py] of pts) if (isWall(px,py)) return false;
+    return true;
+}
+function dist(x1,y1,x2,y2) { return Math.hypot(x2-x1, y2-y1); }
+
+// ========== PAUSE ==========
+function togglePause() {
+    if (!gameActive || jumpscareTimer > 0) return;
+    isPaused = !isPaused;
+    const overlay = document.getElementById("pause-overlay");
+    const btn = document.getElementById("pause-btn");
+    if (isPaused) {
+        overlay.style.display = "flex";
+        btn.innerHTML = "▶";
+        document.exitPointerLock();
+    } else {
+        overlay.style.display = "none";
+        btn.innerHTML = "⏸";
+    }
+}
+
+// ========== MENU ==========
+function startAct(act) {
+    currentAct = act;
+    document.getElementById("start-screen").style.display = "none";
+    
+    canvas.style.display = "block";
+    document.getElementById("objective").style.display = "block";
+    document.getElementById("controls-hint").style.display = "block";
+    document.getElementById("inventory").style.display = "flex";
+    document.getElementById("crosshair").style.display = "block";
+    document.getElementById("sprint-container").style.display = "block";
+    document.getElementById("pause-btn").style.display = "flex";
+    
+    const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    showMobileControls(isTouch);
+    
+    initSystem();
+}
+
+function backToMenu() {
+    gameActive = false;
+    isPaused = false;
+    document.exitPointerLock();
+    showMobileControls(false);
+    
+    document.getElementById("pause-overlay").style.display = "none";
+    document.getElementById("pause-btn").style.display = "none";
+    document.getElementById("pause-btn").innerHTML = "⏸";
+    
+    canvas.style.display = "none";
+    document.getElementById("objective").style.display = "none";
+    document.getElementById("controls-hint").style.display = "none";
+    document.getElementById("inventory").style.display = "none";
+    document.getElementById("crosshair").style.display = "none";
+    document.getElementById("sprint-container").style.display = "none";
+    document.getElementById("gameover-screen").style.display = "none";
+    document.getElementById("victory-screen").style.display = "none";
+    
+    document.getElementById("start-screen").style.display = "flex";
+}
+
+function restartGame() {
+    document.getElementById("gameover-screen").style.display = "none";
+    document.getElementById("victory-screen").style.display = "none";
+    isPaused = false;
+    document.getElementById("pause-overlay").style.display = "none";
+    document.getElementById("pause-btn").innerHTML = "⏸";
+    initSystem();
+}
+
+function initSystem() {
+    map = maps[currentAct];
+    MAP_W = map[0].length;
+    MAP_H = map.length;
+
+    if (currentAct === 1) {
+        player.x = 1.5; player.y = 1.5; player.angle = 0;
+        monster.x = 14.2; monster.y = 12.5; monster.speed = 0.020;
+        keyItem.x = 14.5; keyItem.y = 1.5;
+        exitDoor.x = 1.5; exitDoor.y = 12.5;
+        document.getElementById("objective").innerText = "ACT 1 — Find the Yellow Key!";
+        document.getElementById("victory-text").innerText = "You escaped Act 1!";
+    } else if (currentAct === 2) {
+        player.x = 1.5; player.y = 1.5; player.angle = 0.2;
+        monster.x = 16.2; monster.y = 13.2; monster.speed = 0.028;
+        keyItem.x = 16.5; keyItem.y = 1.5;
+        exitDoor.x = 1.5; exitDoor.y = 13.2;
+        document.getElementById("objective").innerText = "ACT 2 — THE NOOB'S REVENGE";
+        document.getElementById("victory-text").innerText = "You survived The Noob's Revenge!";
+    } else {
+        // Act 3
+        player.x = 1.5; player.y = 1.5; player.angle = 0;
+        monster.x = 18.2; monster.y = 14.5; monster.speed = 0.034;
+        keyItem.x = 18.5; keyItem.y = 1.5;
+        exitDoor.x = 1.5; exitDoor.y = 15.2;
+        document.getElementById("objective").innerText = "ACT 3 — FINAL CORRUPTION: Find the Key!";
+        document.getElementById("victory-text").innerText = "You conquered the Final Corruption! Legendary Badge unlocked.";
+    }
+
+    player.hasKey = false;
+    keyItem.pickedUp = false;
+    stamina = maxStamina;
+    isSprinting = false;
+    mobileSprint = false;
+    joyDX = 0; joyDY = 0;
+    isPaused = false;
+
+    document.getElementById("slot-key").innerHTML = "❓";
+    document.getElementById("slot-key").classList.remove("has-item");
+    document.getElementById("objective").style.color = "#ffff4d";
+    document.getElementById("sprint-bar").style.width = "100%";
+    document.getElementById("pause-overlay").style.display = "none";
+    document.getElementById("pause-btn").innerHTML = "⏸";
+    gameActive = true;
+    jumpscareTimer = 0;
+}
+
+// ========== UPDATE ==========
+function update() {
+    if (!gameActive || isPaused) return;
+
+    const wantsSprint = keys["shift"] || mobileSprint;
+    const isMoving = keys["w"] || keys["a"] || keys["s"] || keys["d"] || Math.abs(joyDX) > 0.1 || Math.abs(joyDY) > 0.1;
+
+    if (wantsSprint && isMoving && stamina > 0) {
+        isSprinting = true;
+        stamina = Math.max(0, stamina - staminaDrain);
+    } else {
+        isSprinting = false;
+        if (!wantsSprint || !isMoving) stamina = Math.min(maxStamina, stamina + staminaRegen);
+    }
+
+    const pct = (stamina / maxStamina) * 100;
+    const bar = document.getElementById("sprint-bar");
+    bar.style.width = pct + "%";
+    if (pct < 25) bar.style.background = "linear-gradient(90deg,#c0392b,#e74c3c)";
+    else if (pct < 50) bar.style.background = "linear-gradient(90deg,#d35400,#f39c12)";
+    else bar.style.background = "linear-gradient(90deg,#00b060,#00ff88)";
+
+    let dx = 0, dy = 0;
+    if (keys["w"]) { dx += Math.cos(player.angle); dy += Math.sin(player.angle); }
+    if (keys["s"]) { dx -= Math.cos(player.angle); dy -= Math.sin(player.angle); }
+    if (keys["a"]) { dx += Math.cos(player.angle - Math.PI/2); dy += Math.sin(player.angle - Math.PI/2); }
+    if (keys["d"]) { dx += Math.cos(player.angle + Math.PI/2); dy += Math.sin(player.angle + Math.PI/2); }
+
+    if (joyActive) {
+        dx += -joyDY * Math.cos(player.angle) + joyDX * Math.cos(player.angle + Math.PI/2);
+        dy += -joyDY * Math.sin(player.angle) + joyDX * Math.sin(player.angle + Math.PI/2);
+    }
+
+    const len = Math.hypot(dx, dy);
+    if (len > 0) { dx /= len; dy /= len; }
+
+    const speed = isSprinting ? player.speed * sprintMultiplier : player.speed;
+    const nx = player.x + dx * speed;
+    const ny = player.y + dy * speed;
+
+    if (canMoveTo(nx, ny)) { player.x = nx; player.y = ny; }
+    else {
+        if (canMoveTo(nx, player.y)) player.x = nx;
+        if (canMoveTo(player.x, ny)) player.y = ny;
+    }
+
+    // Monster
+    const mdx = player.x - monster.x;
+    const mdy = player.y - monster.y;
+    const mDist = Math.hypot(mdx, mdy);
+    if (mDist > 0.1) {
+        const mx = monster.x + (mdx / mDist) * monster.speed;
+        const my = monster.y + (mdy / mDist) * monster.speed;
+        if (!isWall(mx, monster.y)) monster.x = mx;
+        if (!isWall(monster.x, my)) monster.y = my;
+    }
+
+    // Acceleration per act
+    if (currentAct === 1) monster.speed = Math.min(monster.speed + 0.000035, 0.042);
+    else if (currentAct === 2) monster.speed = Math.min(monster.speed + 0.000055, 0.055);
+    else monster.speed = Math.min(monster.speed + 0.000075, 0.068); // Act 3 hardest
+
+    // Key
+    if (!keyItem.pickedUp && dist(player.x, player.y, keyItem.x, keyItem.y) < 0.75) {
+        keyItem.pickedUp = true;
+        player.hasKey = true;
+        document.getElementById("slot-key").innerHTML = "🔑";
+        document.getElementById("slot-key").classList.add("has-item");
+        document.getElementById("objective").innerText = "KEY FOUND! Reach the green exit!";
+        document.getElementById("objective").style.color = "#00ff00";
+    }
+
+    // Exit
+    if (player.hasKey && dist(player.x, player.y, exitDoor.x, exitDoor.y) < 0.85) {
+        gameActive = false;
+        document.exitPointerLock();
+        document.getElementById("victory-screen").style.display = "flex";
+        document.getElementById("pause-btn").style.display = "none";
+        showMobileControls(false);
+    }
+
+    // Caught
+    if (dist(player.x, player.y, monster.x, monster.y) < 0.48) {
+        gameActive = false;
+        document.exitPointerLock();
+        jumpscareTimer = 1;
+        document.getElementById("pause-btn").style.display = "none";
+        showMobileControls(false);
+    }
+}
+
+// ========== RENDER ==========
+function castRay(angle) {
+    const step = 0.015;
+    let dist = 0, hit = false, side = 0;
+    const cos = Math.cos(angle), sin = Math.sin(angle);
+    while (dist < 22 && !hit) {
+        dist += step;
+        const rx = player.x + cos * dist;
+        const ry = player.y + sin * dist;
+        if (isWall(rx, ry)) {
+            hit = true;
+            const fx = rx - Math.floor(rx);
+            side = (fx < 0.02 || fx > 0.98) ? 0 : 1;
+        }
+    }
+    return { dist: dist * Math.cos(angle - player.angle), raw: dist, side };
+}
+
+function drawSprite(sx, sy, color, sizeMul = 1, isKey = false) {
+    const dx = sx - player.x, dy = sy - player.y;
+    const distTo = Math.hypot(dx, dy);
+    if (distTo < 0.25 || distTo > 18) return;
+
+    let ang = Math.atan2(dy, dx) - player.angle;
+    while (ang > Math.PI) ang -= Math.PI*2;
+    while (ang < -Math.PI) ang += Math.PI*2;
+    if (Math.abs(ang) > player.fov * 0.75) return;
+
+    const screenX = (0.5 + ang / player.fov) * W;
+    const spriteH = Math.min(H * 1.5, (H * 0.95) / distTo * sizeMul);
+    const spriteW = spriteH * (isKey ? 0.7 : 0.55);
+
+    const ray = castRay(player.angle + ang);
+    if (ray.raw < distTo - 0.2) return;
+
+    if (isKey) {
+        const pulse = 0.65 + Math.sin(Date.now()/120)*0.35;
+        ctx.fillStyle = `rgba(255,220,0,${pulse})`;
+        ctx.beginPath();
+        ctx.arc(screenX, H/2, spriteH*0.38, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = "#fff";
+        ctx.font = `bold ${Math.floor(spriteH*0.7)}px Arial`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("🔑", screenX, H/2);
+    } else {
+        ctx.fillStyle = color;
+        ctx.fillRect(screenX - spriteW/2, H/2 - spriteH/2, spriteW, spriteH);
+        ctx.fillStyle = "rgba(0,0,0,0.3)";
+        ctx.fillRect(screenX - spriteW/2, H/2, spriteW, spriteH/2);
+    }
+}
+
+function drawMiniMap() {
+    const mmSize = 150;
+    const mmX = 18;
+    const mmY = 70;               // top-left area
+    const cell = mmSize / Math.max(MAP_W, MAP_H);
+
+    // Background
+    ctx.fillStyle = "rgba(0,0,0,0.88)";
+    ctx.fillRect(mmX - 8, mmY - 8, mmSize + 16, mmSize + 16);
+
+    // Border
+    ctx.strokeStyle = currentAct === 3 ? "#9b59b6" : (currentAct === 2 ? "#e74c3c" : "#00a2ff");
+    ctx.lineWidth = 2;
+    ctx.strokeRect(mmX - 8, mmY - 8, mmSize + 16, mmSize + 16);
+
+    // Title
+    ctx.fillStyle = currentAct === 3 ? "#9b59b6" : (currentAct === 2 ? "#e74c3c" : "#00a2ff");
+    ctx.font = "bold 13px Segoe UI";
+    ctx.textAlign = "left";
+    ctx.fillText(currentAct === 3 ? "ACT 3 MAP" : (currentAct === 2 ? "ACT 2 MAP" : "MINI-MAP"), mmX, mmY - 16);
+
+    // Cells
+    for (let y = 0; y < MAP_H; y++) {
+        for (let x = 0; x < MAP_W; x++) {
+            ctx.fillStyle = map[y][x] === 1 ? "#4a5568" : "#1a202c";
+            ctx.fillRect(mmX + x * cell, mmY + y * cell, cell + 0.5, cell + 0.5);
+        }
+    }
+
+    // Exit
+    ctx.fillStyle = player.hasKey ? "#00ff55" : "#e67e22";
+    ctx.fillRect(mmX + exitDoor.x * cell - 4, mmY + exitDoor.y * cell - 4, 8, 8);
+
+    // Key
+    if (!keyItem.pickedUp) {
+        ctx.fillStyle = "#ffdd00";
+        ctx.beginPath();
+        ctx.arc(mmX + keyItem.x * cell, mmY + keyItem.y * cell, 5, 0, Math.PI*2);
+        ctx.fill();
+    }
+
+    // Monster
+    ctx.fillStyle = "#ff2222";
+    ctx.beginPath();
+    ctx.arc(mmX + monster.x * cell, mmY + monster.y * cell, 5, 0, Math.PI*2);
+    ctx.fill();
+
+    // Player
+    ctx.fillStyle = "#00a2ff";
+    ctx.beginPath();
+    ctx.arc(mmX + player.x * cell, mmY + player.y * cell, 4, 0, Math.PI*2);
+    ctx.fill();
+
+    // Direction
+    ctx.strokeStyle = "#00a2ff";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(mmX + player.x * cell, mmY + player.y * cell);
+    ctx.lineTo(
+        mmX + player.x * cell + Math.cos(player.angle) * 11,
+        mmY + player.y * cell + Math.sin(player.angle) * 11
+    );
+    ctx.stroke();
+}
+
+function draw() {
+    if (!gameActive && jumpscareTimer === 0) return;
+
+    // Atmosphere per act
+    if (currentAct === 3) {
+        ctx.fillStyle = "#12051a";
+        ctx.fillRect(0, 0, W, H/2);
+        ctx.fillStyle = "#0a030f";
+        ctx.fillRect(0, H/2, W, H/2);
+    } else if (currentAct === 2) {
+        ctx.fillStyle = "#1a0a0a";
+        ctx.fillRect(0, 0, W, H/2);
+        ctx.fillStyle = "#0d0505";
+        ctx.fillRect(0, H/2, W, H/2);
+    } else {
+        ctx.fillStyle = "#1a1a2e";
+        ctx.fillRect(0, 0, W, H/2);
+        ctx.fillStyle = "#0d0d12";
+        ctx.fillRect(0, H/2, W, H/2);
+    }
+
+    if (jumpscareTimer > 0) {
+        renderJumpscare();
+        return;
+    }
+
+    // Walls
+    for (let i = 0; i < W; i++) {
+        const rayAngle = player.angle - player.fov/2 + (i/W)*player.fov;
+        const ray = castRay(rayAngle);
+        const wallH = Math.min(H*1.8, H / ray.dist);
+        const wallTop = (H - wallH)/2;
+
+        let shade = ray.side === 0 ? 1 : 0.65;
+        const distFade = Math.max(0.12, 1 - ray.dist/14);
+
+        let r, g, b;
+        if (currentAct === 3) {
+            r = Math.floor(80 * shade * distFade);
+            g = Math.floor(30 * shade * distFade);
+            b = Math.floor(100 * shade * distFade);
+        } else if (currentAct === 2) {
+            r = Math.floor(90 * shade * distFade);
+            g = Math.floor(40 * shade * distFade);
+            b = Math.floor(45 * shade * distFade);
+        } else {
+            r = Math.floor(70 * shade * distFade);
+            g = Math.floor(90 * shade * distFade);
+            b = Math.floor(110 * shade * distFade);
+        }
+
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.fillRect(i, wallTop, 1, wallH);
+    }
+
+    // Sprites
+    const sprites = [];
+    if (!keyItem.pickedUp) sprites.push({x: keyItem.x, y: keyItem.y, type: "key"});
+    sprites.push({x: exitDoor.x, y: exitDoor.y, type: "door"});
+    sprites.push({x: monster.x, y: monster.y, type: "monster"});
+    sprites.sort((a,b) => dist(player.x,player.y,b.x,b.y) - dist(player.x,player.y,a.x,a.y));
+
+    for (const s of sprites) {
+        if (s.type === "key") drawSprite(s.x, s.y, "#f1c40f", 0.9, true);
+        else if (s.type === "door") drawSprite(s.x, s.y, player.hasKey ? "#00ff55" : "#e67e22", 1.15);
+        else if (s.type === "monster") {
+            drawSprite(s.x, s.y, "#004400", 1.45);
+            const dx = s.x - player.x, dy = s.y - player.y;
+            const d = Math.hypot(dx, dy);
+            let ang = Math.atan2(dy, dx) - player.angle;
+            while (ang > Math.PI) ang -= Math.PI*2;
+            while (ang < -Math.PI) ang += Math.PI*2;
+            if (Math.abs(ang) < player.fov*0.7 && d > 0.4 && d < 15) {
+                const sx = (0.5 + ang/player.fov)*W;
+                const sh = Math.min(H, (H*0.55)/d);
+                ctx.fillStyle = "#e6c300";
+                ctx.fillRect(sx - sh*0.22, H/2 - sh*0.95, sh*0.44, sh*0.4);
+                ctx.fillStyle = "#ff0000";
+                ctx.fillRect(sx - sh*0.12, H/2 - sh*0.85, sh*0.08, sh*0.08);
+                ctx.fillRect(sx + sh*0.04, H/2 - sh*0.85, sh*0.08, sh*0.08);
+            }
+        }
+    }
+
+    // Flashlight
+    const lightR = currentAct === 3 ? 210 : (currentAct === 2 ? 230 : 260);
+    const g = ctx.createRadialGradient(W/2, H/2, 12, W/2, H/2, lightR);
+    g.addColorStop(0, "rgba(0,0,0,0)");
+    g.addColorStop(0.4, "rgba(0,0,0,0.45)");
+    g.addColorStop(1, "rgba(0,0,0,0.97)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+
+    drawMiniMap();
+}
+
+function renderJumpscare() {
+    jumpscareTimer++;
+    ctx.fillStyle = (jumpscareTimer % 2 === 0) ? "#ff0000" : "#000";
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.fillStyle = "#e6c300";
+    ctx.fillRect(W/2-160, H/2-160, 320, 320);
+    ctx.fillStyle = "#000";
+    ctx.fillRect(W/2-110, H/2-90, 70, 70);
+    ctx.fillRect(W/2+40, H/2-90, 70, 70);
+    ctx.fillStyle = "#ff0000";
+    ctx.fillRect(W/2-90, H/2-70, 25, 25);
+    ctx.fillRect(W/2+60, H/2-70, 25, 25);
+
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 12;
+    ctx.beginPath();
+    ctx.arc(W/2, H/2+50, 70, 0, Math.PI, true);
+    ctx.stroke();
+
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 36px Impact";
+    ctx.textAlign = "center";
+    ctx.fillText("* ROBLOX OOF SOUND *", W/2, H/2+210);
+
+    if (jumpscareTimer > 70) {
+        jumpscareTimer = 0;
+        document.getElementById("gameover-screen").style.display = "flex";
+    }
+}
+
+function engineLoop() {
+    update();
+    draw();
+    requestAnimationFrame(engineLoop);
+}
+engineLoop();
+</script>
+</body>
+</html>
