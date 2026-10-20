@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#08080b">
+    <title>Support &amp; How to Play — The Noob's Asylum</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 32px 18px;
+            color: #f5f5f5;
+            background: radial-gradient(ellipse at top, #21132b 0, #0c0b11 48%, #050505 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        main { width: min(900px, 100%); margin: 0 auto; }
+        header { text-align: center; margin: 12px 0 30px; }
+        .eyebrow { color: #c084fc; font-size: 13px; font-weight: 800; letter-spacing: 3px; }
+        h1 { margin: 10px 0; font-size: clamp(32px, 7vw, 52px); }
+        .intro { max-width: 650px; margin: 0 auto; color: #c5c1cb; line-height: 1.65; }
+        .notice {
+            margin: 24px 0;
+            padding: 15px 18px;
+            border: 1px solid #604378;
+            border-left: 4px solid #b66be0;
+            border-radius: 8px;
+            background: rgba(78, 37, 99, .22);
+            color: #e8d8f1;
+            line-height: 1.6;
+        }
+        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+        article {
+            padding: 21px;
+            border: 1px solid #39343f;
+            border-radius: 10px;
+            background: rgba(20, 19, 24, .9);
+            box-shadow: 0 8px 24px rgba(0,0,0,.25);
+        }
+        article h2 { margin: 0 0 13px; font-size: 22px; }
+        article p, li { color: #c8c5ce; line-height: 1.6; }
+        ul { margin: 10px 0 0; padding-left: 21px; }
+        li + li { margin-top: 8px; }
+        kbd {
+            display: inline-block;
+            padding: 2px 7px;
+            border: 1px solid #666;
+            border-bottom-width: 3px;
+            border-radius: 5px;
+            background: #29272d;
+            color: #fff;
+            font: 700 13px 'Segoe UI', sans-serif;
+        }
+        .goal {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(0, 176, 96, .12);
+            border: 1px solid rgba(0, 255, 136, .35);
+        }
+        .goal h2 { margin: 0 0 8px; color: #69f0a5; font-size: 20px; }
+        .goal p { margin: 0; color: #d0d9d2; line-height: 1.65; }
+        .back-wrap { margin-top: 28px; text-align: center; }
+        .back {
+            display: inline-block;
+            padding: 12px 22px;
+            border-radius: 6px;
+            border-bottom: 4px solid #006e3c;
+            background: #00a957;
+            color: white;
+            font-weight: 800;
+            text-decoration: none;
+        }
+        .back:hover { filter: brightness(1.12); }
+        footer { margin-top: 26px; color: #85818b; font-size: 13px; text-align: center; }
+    </style>
+</head>
+<body>
+    <main>
+        <header>
+            <div class="eyebrow">THE NOOB'S ASYLUM</div>
+            <h1>Support &amp; How to Play</h1>
+            <p class="intro">Choose an act, explore the maze, find the key, and reach the exit before the Corrupted Noob catches you.</p>
+        </header>
+
+        <div class="notice"><strong>Before you start:</strong> Open the game in a modern web browser with JavaScript enabled. The game runs in the browser, so Windows and Linux players can use a keyboard and mouse, while iPhone and iPad players can use the on-screen touch controls.</div>
+
+        <section class="cards" aria-label="Instructions by operating system">
+            <article>
+                <h2>🪟 Windows</h2>
+                <p>Use a keyboard and mouse to navigate.</p>
+                <ul>
+                    <li><kbd>W</kbd> move forward; <kbd>S</kbd> move backward.</li>
+                    <li><kbd>A</kbd> and <kbd>D</kbd> move sideways.</li>
+                    <li>Move the mouse to look around. Click the game view to capture the mouse pointer.</li>
+                    <li>Hold <kbd>Shift</kbd> while moving to sprint. Watch your stamina bar.</li>
+                    <li>Press <kbd>Space</kbd> or click the pause button to pause or resume.</li>
+                    <li>If the pointer is captured, press <kbd>Esc</kbd> to release it.</li>
+                </ul>
+            </article>
+
+            <article>
+                <h2>🐧 Linux</h2>
+                <p>Controls are the same as on Windows.</p>
+                <ul>
+                    <li><kbd>W</kbd>/<kbd>A</kbd>/<kbd>S</kbd>/<kbd>D</kbd> move around the maze.</li>
+                    <li>Move the mouse to look; click the game view if needed to capture the pointer.</li>
+                    <li>Hold <kbd>Shift</kbd> while moving to sprint.</li>
+                    <li>Press <kbd>Space</kbd> or use the pause button to pause or resume.</li>
+                    <li>Use a recent browser with JavaScript and pointer lock enabled for mouse-look.</li>
+                </ul>
+            </article>
+
+            <article>
+                <h2>📱 iOS (iPhone &amp; iPad)</h2>
+                <p>Play in a touch-capable browser. The on-screen controls appear when the game starts.</p>
+                <ul>
+                    <li>Drag the joystick at the bottom-left to move forward, backward, or sideways.</li>
+                    <li>Drag across the game view to look around.</li>
+                    <li>Touch and hold <strong>SPRINT</strong> at the bottom-right while moving to sprint.</li>
+                    <li>Tap the pause button in the top-right to pause or resume.</li>
+                    <li><strong>For a better experience:</strong> Open this site in your browser, tap <strong>Share</strong>, then scroll down and choose <strong>Add to Home Screen</strong>.</li>
+                    <li>For a better view, rotate your device to landscape orientation.</li>
+                </ul>
+            </article>
+        </section>
+
+        <section class="goal">
+            <h2>🎯 Your objective</h2>
+            <p>Select Act 1, Act 2, or Act 3 from the main menu. Find the yellow key shown on the mini-map, then make your way to the exit. Avoid the monster, keep an eye on your stamina, and use the mini-map to plan your route. If you get caught, choose <strong>RESPAWN</strong> to try again.</p>
+        </section>
+
+        <div class="back-wrap"><a class="back" href="index.html">← Back to the game</a></div>
+        <footer>Having trouble? Make sure your browser is up to date and that the game has permission to use mouse or touch input.</footer>
+    </main>
+</body>
+</html>
