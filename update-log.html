@@ -5,218 +5,319 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Log — The Noob's Asylum</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        :root {
+            --bg-color: #0d0b14;
+            --container-bg: #161224;
+            --text-color: #e2e0e7;
+            --text-muted: #a39fb4;
+            --primary-purple: #8b5cf6;
+            --primary-purple-hover: #7c3aed;
+            --border-color: #2d2647;
+            --accent-blue: #3b82f6;
+            --accent-red: #ef4444;
+            --accent-green: #10b981;
         }
+
         body {
-            background: #0a0a0f;
-            color: #e0e0e0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
             line-height: 1.6;
-            padding: 40px 20px;
         }
+
         .container {
             max-width: 800px;
             margin: 0 auto;
-        }
-        header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-        header h1 {
-            font-size: 42px;
-            color: #fff;
-            margin-bottom: 8px;
-            letter-spacing: 1px;
-        }
-        header p {
-            color: #888;
-            font-size: 16px;
-        }
-        .back-btn {
-            display: inline-block;
-            margin-bottom: 30px;
-            background: #00b060;
-            color: white;
-            text-decoration: none;
-            padding: 12px 28px;
-            border-radius: 6px;
-            font-weight: bold;
-            border-bottom: 4px solid #006e3c;
-            transition: 0.15s;
-        }
-        .back-btn:hover {
-            filter: brightness(1.1);
-            transform: translateY(-2px);
-        }
-        .version {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid #333;
+            background-color: var(--container-bg);
+            padding: 40px;
             border-radius: 12px;
-            padding: 28px 32px;
-            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
         }
-        .version-header {
+
+        .back-link {
+            display: inline-block;
+            color: var(--primary-purple);
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--primary-purple-hover);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-top: 0;
+            margin-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 18px;
-            flex-wrap: wrap;
             gap: 10px;
         }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+
+        .version-block {
+            position: relative;
+            padding-left: 30px;
+            border-left: 3px solid var(--border-color);
+            margin-bottom: 40px;
+        }
+
+        .version-block::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 5px;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background-color: var(--border-color);
+            border: 3px solid var(--container-bg);
+        }
+
+        .version-block.latest {
+            border-left-color: var(--primary-purple);
+        }
+
+        .version-block.latest::before {
+            background-color: var(--primary-purple);
+            box-shadow: 0 0 10px var(--primary-purple);
+        }
+
+        .version-header {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
         .version-title {
-            font-size: 24px;
+            font-size: 1.5rem;
             font-weight: 700;
-            color: #fff;
+            margin: 0;
         }
-        .version-date {
-            font-size: 14px;
-            color: #888;
-            background: rgba(255,255,255,0.06);
-            padding: 4px 12px;
+
+        .badge {
+            font-size: 0.8rem;
+            padding: 4px 10px;
             border-radius: 20px;
-        }
-        .tag {
-            display: inline-block;
-            font-size: 12px;
-            font-weight: 700;
-            padding: 3px 10px;
-            border-radius: 4px;
-            margin-right: 8px;
+            font-weight: 600;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .tag-new { background: #00b060; color: white; }
-        .tag-improve { background: #3498db; color: white; }
-        .tag-fix { background: #e74c3c; color: white; }
-        .tag-balance { background: #f39c12; color: white; }
+
+        .badge.latest {
+            background-color: rgba(139, 92, 246, 0.2);
+            color: var(--primary-purple);
+            border: 1px solid var(--primary-purple);
+        }
+
+        .badge.previous {
+            background-color: rgba(163, 159, 180, 0.1);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+
+        .badge.major {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+        }
+
+        .badge.first {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+
+        .category-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-purple);
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
 
         ul {
             list-style: none;
             padding-left: 0;
+            margin: 0 0 20px 0;
         }
+
         li {
             position: relative;
-            padding-left: 22px;
-            margin-bottom: 10px;
-            color: #ccc;
+            padding-left: 20px;
+            margin-bottom: 8px;
         }
+
         li::before {
             content: "•";
+            color: var(--text-muted);
             position: absolute;
             left: 0;
-            color: #00b060;
             font-weight: bold;
         }
-        .section-title {
-            font-size: 15px;
-            font-weight: 700;
-            color: #aaa;
-            margin: 18px 0 10px 0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+
+        .tag {
+            font-weight: bold;
+            font-size: 0.85rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-right: 6px;
+            display: inline-block;
         }
+
+        .tag.new { background-color: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+        .tag.improved { background-color: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+        .tag.fixed { background-color: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+        .tag.balance { background-color: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+
+        .btn-link {
+            display: inline-block;
+            background-color: var(--primary-purple);
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .btn-link:hover {
+            background-color: var(--primary-purple-hover);
+            transform: translateY(-1px);
+        }
+
         footer {
             text-align: center;
             margin-top: 60px;
-            color: #555;
-            font-size: 14px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <a href="../index.html" class="back-btn">← Back to Game</a>
 
-        <header>
-            <h1>📜 Update Log</h1>
-            <p>The Noob's Asylum — Full Changelog</p>
-        </header>
+<div class="container">
+    <a href="index.html" class="back-link">← Back to Game</a>
+    
+    <h1>📜 Update Log</h1>
+    <div class="subtitle">The Noob's Asylum — Full Changelog</div>
 
-        <!-- ACT 3 UPDATE -->
-        <div class="version">
-            <div class="version-header">
-                <div class="version-title">v3.0 — Act 3: Final Corruption</div>
-                <div class="version-date">Latest Update</div>
-            </div>
-
-            <div class="section-title">New Content</div>
-            <ul>
-                <li><span class="tag tag-new">New</span> Added <strong>Act 3 – Final Corruption</strong></li>
-                <li><span class="tag tag-new">New</span> Brand new larger and more complex map</li>
-                <li><span class="tag tag-new">New</span> Purple/dark horror atmosphere exclusive to Act 3</li>
-                <li><span class="tag tag-new">New</span> Hardest difficulty: fastest monster + strongest acceleration</li>
-                <li><span class="tag tag-new">New</span> New victory message & badge text for Act 3</li>
-            </ul>
-
-            <div class="section-title">Gameplay & Systems</div>
-            <ul>
-                <li><span class="tag tag-improve">Improved</span> Mini-map fully moved to the left side of the screen</li>
-                <li><span class="tag tag-improve">Improved</span> Inventory box also moved to the left side</li>
-                <li><span class="tag tag-improve">Improved</span> Mini-map title and background no longer get cut off</li>
-                <li><span class="tag tag-improve">Improved</span> Better layering so the mini-map looks clean</li>
-            </ul>
-
-            <div class="section-title">UI / Menu</div>
-            <ul>
-                <li><span class="tag tag-new">New</span> Act 3 button added to the main menu (purple)</li>
-                <li><span class="tag tag-new">New</span> Update Log button added below the act buttons</li>
-            </ul>
+    <!-- v3.1 Entry -->
+    <div class="version-block latest">
+        <div class="version-header">
+            <h2 class="version-title">v3.1 — Support Page</h2>
+            <span class="badge latest">Latest Update</span>
         </div>
-
-        <!-- PREVIOUS BIG UPDATES -->
-        <div class="version">
-            <div class="version-header">
-                <div class="version-title">v2.5 — Quality of Life & Mobile</div>
-                <div class="version-date">Previous</div>
-            </div>
-
-            <ul>
-                <li><span class="tag tag-new">New</span> Full mobile support (virtual joystick + sprint button)</li>
-                <li><span class="tag tag-new">New</span> Sprint system with stamina bar (Left Shift / hold button)</li>
-                <li><span class="tag tag-new">New</span> Pause system (Spacebar + top-right pause button)</li>
-                <li><span class="tag tag-improve">Improved</span> Much better wall collision (no more noclipping)</li>
-                <li><span class="tag tag-improve">Improved</span> Controls hint updated for mobile + pause</li>
-                <li><span class="tag tag-fix">Fixed</span> Key sometimes hard to find → better visibility + mini-map help</li>
-            </ul>
-        </div>
-
-        <div class="version">
-            <div class="version-header">
-                <div class="version-title">v2.0 — First Person + Act 2</div>
-                <div class="version-date">Major Update</div>
-            </div>
-
-            <ul>
-                <li><span class="tag tag-new">New</span> Complete rewrite to true first-person raycasting</li>
-                <li><span class="tag tag-new">New</span> Added Act 2 – The Noob's Revenge</li>
-                <li><span class="tag tag-new">New</span> Mini-map system</li>
-                <li><span class="tag tag-new">New</span> Different atmospheres per act (blue / red)</li>
-                <li><span class="tag tag-balance">Balance</span> Monster speed and acceleration adjusted per act</li>
-                <li><span class="tag tag-improve">Improved</span> Flashlight / darkness effect</li>
-                <li><span class="tag tag-improve">Improved</span> Jumpscare and victory/game over screens</li>
-            </ul>
-        </div>
-
-        <div class="version">
-            <div class="version-header">
-                <div class="version-title">v1.0 — Original Release</div>
-                <div class="version-date">First Version</div>
-            </div>
-
-            <ul>
-                <li>Top-down view escape game</li>
-                <li>Basic WASD movement</li>
-                <li>Simple monster AI</li>
-                <li>Key + exit door objective</li>
-                <li>Classic Roblox-inspired UI</li>
-            </ul>
-        </div>
-
-        <footer>
-            The Noob's Asylum • Made with ❤️ in pure HTML / CSS / JS
-        </footer>
+        
+        <div class="category-title">New Content</div>
+        <ul>
+            <li><span class="tag new">New</span> Added a full <strong>Support & How to Play</strong> page</li>
+            <li><span class="tag new">New</span> Separate controls guide for Windows, Linux, and iOS</li>
+            <li><span class="tag new">New</span> Clear objective explanation and tips for new players</li>
+        </ul>
+        <a href="support.html" class="btn-link">→ Open Support & How to Play</a>
     </div>
+
+    <!-- v3.0 Entry -->
+    <div class="version-block">
+        <div class="version-header">
+            <h2 class="version-title">v3.0 — Act 3: Final Corruption</h2>
+            <span class="badge previous">Previous</span>
+        </div>
+        
+        <div class="category-title">New Content</div>
+        <ul>
+            <li><span class="tag new">New</span> Added <strong>Act 3 – Final Corruption</strong></li>
+            <li><span class="tag new">New</span> Brand new larger and more complex map</li>
+            <li><span class="tag new">New</span> Purple/dark horror atmosphere exclusive to Act 3</li>
+            <li><span class="tag new">New</span> Hardest difficulty: fastest monster + strongest acceleration</li>
+            <li><span class="tag new">New</span> New victory message & badge text for Act 3</li>
+        </ul>
+
+        <div class="category-title">Gameplay & Systems</div>
+        <ul>
+            <li><span class="tag improved">Improved</span> Mini-map fully moved to the left side of the screen</li>
+            <li><span class="tag improved">Improved</span> Inventory box also moved to the left side</li>
+            <li><span class="tag improved">Improved</span> Mini-map title and background no longer get cut off</li>
+            <li><span class="tag improved">Improved</span> Better layering so the mini-map looks clean</li>
+        </ul>
+
+        <div class="category-title">UI / Menu</div>
+        <ul>
+            <li><span class="tag new">New</span> Act 3 button added to the main menu (purple)</li>
+            <li><span class="tag new">New</span> Update Log button added below the act buttons</li>
+        </ul>
+    </div>
+
+    <!-- v2.5 Entry -->
+    <div class="version-block">
+        <div class="version-header">
+            <h2 class="version-title">v2.5 — Quality of Life & Mobile</h2>
+            <span class="badge previous">Previous</span>
+        </div>
+        <ul>
+            <li><span class="tag new">New</span> Full mobile support (virtual joystick + sprint button)</li>
+            <li><span class="tag new">New</span> Sprint system with stamina bar (Left Shift / hold button)</li>
+            <li><span class="tag new">New</span> Pause system (Spacebar + top-right pause button)</li>
+            <li><span class="tag improved">Improved</span> Much better wall collision (no more noclipping)</li>
+            <li><span class="tag improved">Improved</span> Controls hint updated for mobile + pause</li>
+            <li><span class="tag fixed">Fixed</span> Key sometimes hard to find → better visibility + mini-map help</li>
+        </ul>
+    </div>
+
+    <!-- v2.0 Entry -->
+    <div class="version-block">
+        <div class="version-header">
+            <h2 class="version-title">v2.0 — First Person + Act 2</h2>
+            <span class="badge major">Major Update</span>
+        </div>
+        <ul>
+            <li><span class="tag new">New</span> Complete rewrite to true first-person raycasting</li>
+            <li><span class="tag new">New</span> Added Act 2 – The Noob's Revenge</li>
+            <li><span class="tag new">New</span> Mini-map system</li>
+            <li><span class="tag new">New</span> Different atmospheres per act (blue / red)</li>
+            <li><span class="tag balance">Balance</span> Monster speed and acceleration adjusted per act</li>
+            <li><span class="tag improved">Improved</span> Flashlight / darkness effect</li>
+            <li><span class="tag improved">Improved</span> Jumpscare and victory/game over screens</li>
+        </ul>
+    </div>
+
+    <!-- v1.0 Entry -->
+    <div class="version-block">
+        <div class="version-header">
+            <h2 class="version-title">v1.0 — Original Release</h2>
+            <span class="badge first">First Version</span>
+        </div>
+        <ul>
+            <li>Top-down view escape game</li>
+            <li>Basic WASD movement</li>
+            <li>Simple monster AI</li>
+            <li>Key + exit door objective</li>
+            <li>Classic Roblox-inspired UI</li>
+        </ul>
+    </div>
+
+    <footer>
+        The Noob's Asylum • Made with ❤ in pure HTML / CSS / JS
+    </footer>
+</div>
+
 </body>
 </html>
